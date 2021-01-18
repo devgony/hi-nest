@@ -281,7 +281,7 @@ afterAll(() => {
 });
 ```
 
-## 11. Unit Test in Nest
+## 11. End To End Test in Nest
 
 `test:e2e` => end to end test (user story)
 : at test folder
