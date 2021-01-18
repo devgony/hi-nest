@@ -19,7 +19,9 @@ import { MoviesService } from './movies.service';
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
   @Get()
-  getAll(@Req() req, @Res() res): Movie[] {
+  // getAll(@Req() req, @Res() res): Movie[] {
+  // req, res does't work with e2e test
+  getAll(): Movie[] {
     // return res.json(this.moviesService.getAll());
     return this.moviesService.getAll();
   }
@@ -31,7 +33,7 @@ export class MoviesController {
   }
 
   @Get(':id') // no need '/'
-  getOne(@Param('id') movieId: string): Movie {
+  getOne(@Param('id') movieId: number): Movie {
     return this.moviesService.getOne(movieId);
   }
 
@@ -41,14 +43,14 @@ export class MoviesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') movieId: string) {
+  remove(@Param('id') movieId: number) {
     return this.moviesService.deleteOne(movieId);
   }
 
   //Put update all resource
   //Patch update somepart
   @Patch(':id')
-  patch(@Param('id') movieId: string, @Body() updateData: UpdateMovieDto) {
+  patch(@Param('id') movieId: number, @Body() updateData: UpdateMovieDto) {
     return this.moviesService.update(movieId, updateData);
   }
 }

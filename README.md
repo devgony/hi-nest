@@ -51,7 +51,7 @@ take urls, maps it into and return services
 
 ## 2. process
 
-main.ts => app.module.ts => controller => appservice => return
+> main.ts => app.module.ts => controller => appservice => return
 
 ## 3. Generate controller
 
@@ -63,21 +63,31 @@ nest g co
 
 spec.ts is for test => delete it
 
-## . If you want something? Ask for it to nest! @Param()
+> If you want something? Ask for it to nest! @Param()
 
-## . Summarize Decorators
+> ## Summarize Decorators
 
 @Query should be at earlier than @Param, otherwise it recognizes the entry point as Param first
 
-Put update all resource
+```ts
+@Get
+@Post
+@Delete
+@Put
+// Put update all resource
+@Patch
+// Patch update somepart
+@Param
+// get param from url(start wih ';')
+@Query
+// get query string from url(start with '?)
+```
 
-Patch update somepart
-
-## . Generate provider(service)
+## 4. Generate provider(service)
 
 Single-responsibility principle
 
-:A thing should do one thing and well
+: A thing should do one thing and well
 
 ```
 nest g s
@@ -87,20 +97,22 @@ nest g s
 > importing of express => asking in nest
 
 ```ts
+// movies.controller.ts
 constructor(private readonly moviesService: MoviesService) {}
 ```
 
 service can be both of real or fake DB
 
-## built-in exception
+## 5. built-in exception
 
 ```ts
+// movies.service.ts
 if (!movie) {
   throw new NotFoundException();
 }
 ```
 
-## DTO: Data Transfer Object
+## 6. DTO: Data Transfer Object
 
 1. better code experience
 2. type validator(real time)
@@ -110,6 +122,8 @@ if (!movie) {
 ```
 npm i class-validator class-transformer
 ```
+
+> Create DTO
 
 ```ts
 // create-movie.dto.ts
@@ -124,7 +138,7 @@ export class CreateMovieDto {
 }
 ```
 
-turn on ValidationPipe
+> Turn on ValidationPipe
 
 ```ts
 app.useGlobalPipes(
@@ -136,7 +150,7 @@ app.useGlobalPipes(
 );
 ```
 
-## PartialType
+> ### PartialType
 
 ```
 npm i @nestjs/mapped-types
@@ -147,7 +161,7 @@ npm i @nestjs/mapped-types
 export class UpdateMovieDto extends PartialType(CreateMovieDto) {}
 ```
 
-## Separate movie module from app module
+## 7. Separate movie module from app module
 
 ```
 nest g mo
@@ -162,6 +176,15 @@ nest g mo
 })
 ```
 
+```ts
+// app.module.ts
+@Module({
+  imports: [MoviesModule],
+  controllers: [AppController],
+  providers: [],
+})
+```
+
 ```
 nest g co
 ? What name would you like to use for the controller? app
@@ -170,7 +193,7 @@ rm -rf src/app/
 ```
 
 ```ts
-// app,controller.ts
+// app.controller.ts
 @Controller('') // "app" => ""
 export class AppController {
   @Get()
@@ -180,11 +203,12 @@ export class AppController {
 }
 ```
 
-## Dependency injection
+## 8. Dependency injection
 
 Module.ts inject providers to controllers
 
 ```ts
+// movies.module.ts
 @Module({
   controllers: [MoviesController],
   providers: [MoviesService],
@@ -194,10 +218,11 @@ Module.ts inject providers to controllers
 And controllers will get by Type not by import
 
 ```ts
+// movies.controller.ts
 constructor(private readonly moviesService: MoviesService) {}
 ```
 
-## Express on NestJS
+## 9. Express on NestJS
 
 We can access to express by @Req(), @Res() decorators.
 But Use it only `test purpose`.
@@ -211,14 +236,56 @@ Just in case we switch from Express to Fastify to increase speed twice, Don't us
   }
 ```
 
-## Testing in Nest
+## 10. Unit Test in Nest
 
 jest: javascript test package
+
+`test:cov` => show all converage(%)
 
 ```
 npm run test:cov
 ```
 
-test:cov => show all converage
-test:watch => unit test (each of function)
-test:e2e => end to end test (user story)
+`test:watch` => unit test (each of function)
+: each files named with \*`spec`\*
+
+```
+npm run test:watch
+=> a
+```
+
+```ts
+// movies/movies.service.spec.ts
+describe('getAll', () => {
+  it('should return an array', () => {
+    const result = service.getAll();
+    expect(result).toBeInstanceOf(Array);
+  });
+});
+```
+
+> Can define some work before or after
+
+```ts
+beforeEach(async () => {
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [MoviesService],
+  }).compile();
+
+  service = module.get<MoviesService>(MoviesService);
+  // insert some data before each of test
+});
+
+afterAll(() => {
+  console.log('afterAll: You may delete the test data here.');
+});
+```
+
+## 11. Unit Test in Nest
+
+`test:e2e` => end to end test (user story)
+: at test folder
+
+> Use beforeAll intead of beforeEach
+
+> Cuz it create new app, add ValidationPipe same with prod app
